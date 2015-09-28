@@ -11,13 +11,17 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ObjectSet;
 
 public class TanksGame extends ApplicationAdapter {
-	private static final float DEFAULT_ZOOM = 0.2f;
+	private static final float DEFAULT_ZOOM = 0.6f;
 	
 	private AssetManager assetManager_;
 	
@@ -41,6 +45,7 @@ public class TanksGame extends ApplicationAdapter {
 		// Load the map TextureAtlas using an AssetManager
 		assetManager_ = new AssetManager();
 		assetManager_.load("grass.pack", TextureAtlas.class);
+		assetManager_.load("RockMouse.png", Texture.class);
 		assetManager_.finishLoading();
 		
 		// Create the EvenTileSet from the TextureAtlas
@@ -48,10 +53,25 @@ public class TanksGame extends ApplicationAdapter {
 		evenTileset_ = EvenTileSet.fromTextureAtlas(atlas);
 		
 		// Create an example map using the EvenTileSet
-		map_ = DemoMaps.makeDemoMap(evenTileset_, 50, 50);
+		map_ = DemoMaps.makeDemoMap(evenTileset_, 5, 5);
+		
+		// Create an object layer matching the size/tileSize of the terrain layer
+		MapLayers layers = map_.getLayers();
+		TiledMapTileLayer terrainLayer = (TiledMapTileLayer) layers.get(0);
+		MapLayer objectLayer = new MapLayer();
+		layers.add(objectLayer);
+		
+		// Create an example unit - hedgehog
+		Texture hedgehog = assetManager_.get("RockMouse.png", Texture.class);
+		MonsterObject monster = new MonsterObject(
+				terrainLayer.getTileWidth(), terrainLayer.getTileHeight());
+		monster.setTextureRegion(new TextureRegion(hedgehog));
+		monster.setX(2);
+		monster.setY(2);
+		objectLayer.getObjects().add(monster);
 		
 		// Create a renderer for the map
-		renderer_ = new OrthogonalTiledMapRenderer(map_);
+		renderer_ = new GameMapRenderer(map_);
 	}
 
 	@Override
