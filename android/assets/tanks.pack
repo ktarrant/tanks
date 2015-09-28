@@ -1,0 +1,33 @@
+
+tanks.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+medium_tank
+  rotate: false
+  xy: 1, 31
+  size: 76, 89
+  orig: 76, 89
+  offset: 0, 0
+  index: -1
+big_gun
+  rotate: false
+  xy: 79, 54
+  size: 52, 66
+  orig: 52, 66
+  offset: 0, 0
+  index: -1
+rocket_launcher
+  rotate: false
+  xy: 133, 58
+  size: 52, 62
+  orig: 52, 62
+  offset: 0, 0
+  index: -1
+track
+  rotate: false
+  xy: 1, 1
+  size: 76, 28
+  orig: 76, 28
+  offset: 0, 0
+  index: -1
