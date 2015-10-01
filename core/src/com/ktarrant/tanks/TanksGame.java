@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -61,17 +62,13 @@ public class TanksGame extends ApplicationAdapter {
 		MapLayer objectLayer = new MapLayer();
 		layers.add(objectLayer);
 		
+		// Create a renderer for the map
+		renderer_ = new OrthogonalTiledMapRenderer(map_);
+		
 		// Create an example unit - hedgehog
 		Texture hedgehog = assetManager_.get("RockMouse.png", Texture.class);
-		MonsterObject monster = new MonsterObject(
-				terrainLayer.getTileWidth(), terrainLayer.getTileHeight());
-		monster.setTextureRegion(new TextureRegion(hedgehog));
-		monster.setX(2);
-		monster.setY(2);
-		objectLayer.getObjects().add(monster);
+		Sprite protagonist = new Sprite(hedgehog);
 		
-		// Create a renderer for the map
-		renderer_ = new GameMapRenderer(map_);
 	}
 
 	@Override
