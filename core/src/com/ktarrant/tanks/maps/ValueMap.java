@@ -16,7 +16,7 @@ public class ValueMap<T> extends Array<T> {
 	 *  @param height Minimum height of map. */
 	public ValueMap(int width, int height) {
 		super(width * height);
-		
+
 		this.width = width;
 		this.height = height;
 	}
@@ -76,17 +76,43 @@ public class ValueMap<T> extends Array<T> {
 					// something we want to clean right now so we skip this cell
 					continue;
 				}
-				if (((x > 0) && (x < this.width - 1)) &&
-					(this.get(x - 1, y) == topValue) && 
-					(this.get(x + 1, y) == topValue)) {
-					this.set(x, y, topValue);
-					didChange = true;
+				if ((x > 0) && (x < this.width - 1)) {
+					
+					if ((this.get(x - 1, y) == topValue) && 
+						(this.get(x + 1, y) == topValue)) {
+						
+						this.set(x, y, topValue);
+						didChange = true;
+						continue;
+					}
+					
+					if ((y > 0) && (y < this.height - 1))  {
+						
+						if ((this.get(x - 1, y - 1) == topValue) && 
+							(this.get(x + 1, y + 1) == topValue)) {
+							this.set(x, y, topValue);
+							didChange = true;
+							continue;
+						}
+						
+						if ((this.get(x + 1, y - 1) == topValue) && 
+							(this.get(x - 1, y + 1) == topValue)) {
+							this.set(x, y, topValue);
+							didChange = true;
+							continue;
+						}
+					}
+
 				}
-				if (((y > 0) && (y < this.height - 1)) &&
-					(this.get(x, y - 1) == topValue) && 
-					(this.get(x, y + 1) == topValue)) {
-					this.set(x, y, topValue);
-					didChange = true;
+				if ((y > 0) && (y < this.height - 1)) {
+					
+					if ((this.get(x, y - 1) == topValue) && 
+						(this.get(x, y + 1) == topValue)) {
+						
+						this.set(x, y, topValue);
+						didChange = true;
+						continue;
+					}
 				}
 			}
 		}
@@ -104,12 +130,24 @@ public class ValueMap<T> extends Array<T> {
 	}
 	
 	/** Gets a value in the map.
-	 *  If (x,y) outside of map is
-	 *  requested, 0.0f is returned.
 	 *  @param x The x-coordinate.
 	 *  @param y The y-coordinate.
 	 *  @return The value at (x,y). */
 	public T get(int x, int y) {
+		return super.get(y * width + x);
+	}
+	
+	/** Gets a value in the map.
+	 *  If (x,y) is outside of the map, defaultValue is returned.
+	 *  @param x The x-coordinate.
+	 *  @param y The y-coordinate.
+	 *  @param defaultValue The value returned if (x,y) is outside the map.
+	 *  @return The value at (x,y). */
+	public T get(int x, int y, T defaultValue) {
+		if ((x < 0) || (x >= this.width) ||
+			(y < 0) || (y >= this.height)) {
+			return defaultValue;
+		}
 		return super.get(y * width + x);
 	}
 }

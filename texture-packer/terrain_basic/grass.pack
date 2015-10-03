@@ -1,0 +1,26 @@
+
+grass.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+grass
+  rotate: false
+  xy: 0, 128
+  size: 384, 384
+  orig: 384, 384
+  offset: 0, 0
+  index: 1
+grass
+  rotate: false
+  xy: 384, 256
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: 2
+grass
+  rotate: false
+  xy: 0, 0
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: 3

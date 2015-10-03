@@ -16,7 +16,6 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
-import com.ktarrant.tanks.test.DemoMaps;
 import com.ktarrant.tanks.test.MapViewer;
 import com.ktarrant.tanks.test.TestLauncher;
 
@@ -24,7 +23,7 @@ import com.ktarrant.tanks.test.TestLauncher;
 
 public class EvenTileSet extends TiledMapTileSet {
 	private int curId_ = 0;
-	private HashMap<String, Integer> labelToIdMap_;
+	private HashMap<String, Integer> labelToBaseIdMap_;
 	
 	public int tileWidth_ = 0;
 	public int tileHeight_ = 0;
@@ -32,7 +31,7 @@ public class EvenTileSet extends TiledMapTileSet {
 	public EvenTileSet() {
 		super();
 		
-		labelToIdMap_ = new HashMap<String, Integer>();
+		labelToBaseIdMap_ = new HashMap<String, Integer>();
 	}
 	
 	/**
@@ -43,59 +42,28 @@ public class EvenTileSet extends TiledMapTileSet {
 	public EvenTileSet(TextureAtlas atlas) {
 		this();
 		
+		this.addTextureAtlas(atlas);
+	}
+	
+	public void addTextureAtlas(TextureAtlas atlas) {
 		// Add each region as an EvenTile with the label as the region name.
 		for (AtlasRegion region : atlas.getRegions()) {
-			this.addEvenTile(region.name, region);
+			this.addTextureRegion(region.name, region);
 		}
 	}
 	
-	/**
-	 * Adds a tile to the tileset with the given label. This label can be used
-	 * to retrieve the tile later using getEvenTile(label).
-	 * @param label The label used for the region
-	 * @param region The region to use as a tile.
-	 */
-	public void addEvenTile(String label, TextureRegion region) {
-		// Make sure the Id number we are going to use is not
-		// already taken in the tileset.
-		while (this.getTile(curId_) != null) {
-			curId_++;
-		}
+	public void addTextureRegion(String name, TextureRegion region) {
+		String[] nameFields = name.split("_");
+		assert nameFields.length == 2;
 		
-		// Create a tile from the region
+		Integer baseId = labelToBaseIdMap_.get(nameFields[0]);
+		if (baseId == null) {
+			baseId = curId_++;
+			labelToBaseIdMap_.put(nameFields[0], baseId);
+		}
+		int modId = Integer.valueOf(nameFields[1]);
+		int tileId = (baseId << 16) | modId;
 		StaticTiledMapTile tile = new StaticTiledMapTile(region);
-		tile.setId(curId_);
-		
-		// Add the tile with the current available ID
-		this.putTile(curId_, tile);
-		
-		// Add an entry in the hashmap to map the label to the id
-		labelToIdMap_.put(label, curId_);
-		
-		// Increment the current available Id
-		curId_++;
-		
-		// Update the tile width/height
-		if (tileWidth_ == 0 || tileHeight_ == 0) {
-			tileWidth_ = region.getRegionWidth();
-			tileHeight_ = region.getRegionHeight();
-		}
-	}
-	
-	/**
-	 * Gets the tile ID associated with the given label.
-	 * @param label The even tile label to search for.
-	 * @return The ID for the even tile found, or null if no even tile 
-	 * 		was found.
-	 */
-	public int getEvenTileId(String label) {
-		return labelToIdMap_.get(label);
-	}
-	
-	public int getEvenTileId(String label, Array<TiledMapTile> neighbors) {
-		int tileId = getEvenTileId(label);
-		// Try to figure out if the neighbors should modify this cell's value.
-		
-		return tileId;
+		this.putTile(tileId, tile);
 	}
 }

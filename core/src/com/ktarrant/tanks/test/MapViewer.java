@@ -38,6 +38,8 @@ public abstract class MapViewer extends ApplicationAdapter implements InputProce
 	
 	public abstract void load();
 	
+	public abstract void doAction(int actionId);
+	
 	@Override
 	public void create () {
 		// Initialize objects
@@ -125,21 +127,17 @@ public abstract class MapViewer extends ApplicationAdapter implements InputProce
         if(keycode == Input.Keys.RIGHT)
             camera.translate(this.cameraTranslateStep * this.camera.zoom, 0);
         if(keycode == Input.Keys.UP)
-            camera.translate(0, -this.cameraTranslateStep * this.camera.zoom);
-        if(keycode == Input.Keys.DOWN)
             camera.translate(0, this.cameraTranslateStep * this.camera.zoom);
+        if(keycode == Input.Keys.DOWN)
+            camera.translate(0, -this.cameraTranslateStep * this.camera.zoom);
         if(keycode == Input.Keys.EQUALS)
         	camera.zoom -= this.cameraZoomStep;
         if(keycode == Input.Keys.MINUS)
         	camera.zoom += this.cameraZoomStep;
-        if(keycode == Input.Keys.NUM_1) {
-        	TiledMapTileLayer tileLayer = 
-        			(TiledMapTileLayer) map.getLayers().get(0);
-//            map.getLayers().get(0).setVisible(!map.getLayers().get(0).isVisible());
-        }
+        if(keycode == Input.Keys.NUM_1)
+        	doAction(1);
         if(keycode == Input.Keys.NUM_2)
-        	;
-//            map.getLayers().get(1).setVisible(!map.getLayers().get(1).isVisible());
+        	doAction(2);
         return false;
     }
 
