@@ -1,0 +1,29 @@
+
+Gameplay:
+
+Hero (Unit)
+	Start with one Hero
+	A Hero can carry minions
+		Start with one minion, Hero's signature minion
+		signature minion can't die??
+	A Hero has one or two special powers
+	A Hero doesn't die. If all his minions are defeated, the
+		Hero joins the side of the victor. Only his signature
+		minion will remain.
+
+Minion (Unit)
+	Sort of like wild animal
+	Each one Can:
+		Build/Drop/Plant a structure
+		Perform a close range attack
+		Perform a long range attack
+		Perform a defensive move
+	Minions can die. But they also spawn semi-randomly on
+		the map. They can be captured or killed.
+	There are some extra powerful minions on the map to
+		look out for
+
+Multiple Terrains
+	Forest, Desert, Islands, Snow, Caves, Space, Heavy Fog
+	Affects LOS/Sightlines
+	Affects available units

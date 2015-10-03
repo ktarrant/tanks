@@ -1,4 +1,4 @@
-package com.ktarrant.tanks;
+package com.ktarrant.tanks.test;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,7 @@ import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.ktarrant.tanks.EvenTileSet;
 
 public class DemoMaps {
 	
@@ -23,12 +24,8 @@ public class DemoMaps {
 				String label = null;
 				if ((x < width / 3) || (x > 2 * width / 3)) {
 					label = "A";
-				} else if (x == (width / 3)) {
-					label = "A_B4";
-				} else if ((x > (width / 3)) && (x < 2 * width / 3)) {
+				} else if ((x >= (width / 3)) && (x <= 2 * width / 3)) {
 					label = "B";
-				} else if (x == (2 * width / 3)) {
-					label = "A_B3";
 				}
 				cell.setTile(tileset.getTile(tileset.getEvenTileId(label)));
 				layer.setCell(x, y, cell);
@@ -37,10 +34,4 @@ public class DemoMaps {
 		layers.add(layer);
 		return map;
 	}
-
-	@Test
-	public void test() {
-		fail("Not yet implemented");
-	}
-
 }

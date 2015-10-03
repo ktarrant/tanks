@@ -1,12 +1,24 @@
 package com.ktarrant.tanks;
 
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 
+import org.junit.Test;
+
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.utils.Array;
+import com.ktarrant.tanks.test.DemoMaps;
+import com.ktarrant.tanks.test.MapViewer;
+import com.ktarrant.tanks.test.TestLauncher;
 
 /* TODO: Can we use a label that isn't a String to be more efficient? */
 
@@ -27,17 +39,14 @@ public class EvenTileSet extends TiledMapTileSet {
 	 * Create an EvenTileSet from a TextureAtlas, where the name of each texture
 	 * will be the key used to identify the texture later.
 	 * @param atlas The atlas containing all the tiles
-	 * @return A tileset using the tiles in the atlas.
 	 */
-	public static EvenTileSet fromTextureAtlas(TextureAtlas atlas) {
-		EvenTileSet tileset = new EvenTileSet();
+	public EvenTileSet(TextureAtlas atlas) {
+		this();
 		
 		// Add each region as an EvenTile with the label as the region name.
 		for (AtlasRegion region : atlas.getRegions()) {
-			tileset.addEvenTile(region.name, region);
+			this.addEvenTile(region.name, region);
 		}
-		
-		return tileset;
 	}
 	
 	/**
@@ -81,5 +90,12 @@ public class EvenTileSet extends TiledMapTileSet {
 	 */
 	public int getEvenTileId(String label) {
 		return labelToIdMap_.get(label);
+	}
+	
+	public int getEvenTileId(String label, Array<TiledMapTile> neighbors) {
+		int tileId = getEvenTileId(label);
+		// Try to figure out if the neighbors should modify this cell's value.
+		
+		return tileId;
 	}
 }

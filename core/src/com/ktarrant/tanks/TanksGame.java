@@ -20,6 +20,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.ktarrant.tanks.test.DemoMaps;
 
 public class TanksGame extends ApplicationAdapter {
 	private static final float DEFAULT_ZOOM = 0.6f;
@@ -51,7 +52,7 @@ public class TanksGame extends ApplicationAdapter {
 		
 		// Create the EvenTileSet from the TextureAtlas
 		TextureAtlas atlas = assetManager_.get("grass.pack", TextureAtlas.class);
-		evenTileset_ = EvenTileSet.fromTextureAtlas(atlas);
+		evenTileset_ = new EvenTileSet(atlas);
 		
 		// Create an example map using the EvenTileSet
 		map_ = DemoMaps.makeDemoMap(evenTileset_, 5, 5);
