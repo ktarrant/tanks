@@ -1,8 +1,11 @@
-package com.ktarrant.tanks.maps;
+package com.ktarrant.tanks.test;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.ktarrant.tanks.maps.DiamondSquareProcessor;
+import com.ktarrant.tanks.maps.ValueMap;
 
 public class ValueMapTest extends ValueMap<Integer> {
 	public static int MAX_ATTEMPTS = 1;

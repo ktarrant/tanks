@@ -7,10 +7,13 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -19,9 +22,9 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
-import com.ktarrant.tanks.EvenTileSet;
+import com.ktarrant.tanks.maps.TerrainTileSet;
 
-public abstract class MapViewer extends ApplicationAdapter implements InputProcessor {
+public abstract class MapViewer extends ScreenAdapter implements InputProcessor {
 	public static final float DEFAULT_ZOOM = 0.6f;
 	public static final float DEFAULT_CAMERA_TRANSLATE_STEP = 32.0f;
 	public static final float DEFAULT_CAMERA_ZOOM_STEP = 1.0f;
@@ -40,26 +43,40 @@ public abstract class MapViewer extends ApplicationAdapter implements InputProce
 	
 	public abstract void doAction(int actionId);
 	
-	@Override
-	public void create () {
+	private void loadMenu() {
+		// Create a NinePatch from the provided texture
+		this.assetManager.load("sample.png", Texture.class);
+		this.assetManager.finishLoading();
+		Texture patchTex = this.assetManager.get("sample.png", Texture.class);
+		int patchWidth = patchTex.getWidth() / 3;
+		int patchHeight = patchTex.getHeight() / 3;
+		NinePatch patch = new NinePatch(patchTex, 
+				patchWidth, 2 * patchWidth,
+				patchHeight, 2 * patchHeight);
+		
+		
+	}
+	
+	public MapViewer(AssetManager assetManager){
 		// Initialize objects
-		this.assetManager = new AssetManager();
+		this.assetManager = assetManager;
 		this.camera = new OrthographicCamera();
 		this.font = new BitmapFont();
 		this.batch = new SpriteBatch();
 		this.cameraTranslateStep = DEFAULT_CAMERA_TRANSLATE_STEP;
 		this.cameraZoomStep = DEFAULT_CAMERA_ZOOM_STEP;
 		
-		load();
+		// Load the menu Textures
+		this.loadMenu();
 		
-		Gdx.input.setInputProcessor(this);
+		load();
 		
 		// Create a renderer for the map
 		this.renderer = new OrthogonalTiledMapRenderer(this.map);
 	}
 	
 	@Override
-    public void render () {
+    public void render (float delta) {
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -75,22 +92,6 @@ public abstract class MapViewer extends ApplicationAdapter implements InputProce
 	public void resize(int width, int height) {
 		camera.setToOrtho(false, width, height);
 		camera.update();
-	}
-	
-	/**
-	 * Tells the application to exit in a given number of seconds.
-	 * @param seconds Number of seconds until exit.
-	 */
-	public void quitIn(float seconds) {
-		Timer timer = new Timer();
-		timer.scheduleTask(new Task() {
-
-			@Override
-			public void run() {
-				System.exit(0);
-			}
-			
-		}, seconds);
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-package com.ktarrant.tanks;
+package com.ktarrant.tanks.maps;
 
 import static org.junit.Assert.fail;
 
@@ -17,18 +17,17 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
 import com.ktarrant.tanks.test.MapViewer;
-import com.ktarrant.tanks.test.TestLauncher;
 
 /* TODO: Can we use a label that isn't a String to be more efficient? */
 
-public class EvenTileSet extends TiledMapTileSet {
+public class TerrainTileSet extends TiledMapTileSet {
 	private int curId_ = 0;
 	private HashMap<String, Integer> labelToBaseIdMap_;
 	
 	public int tileWidth_ = 0;
 	public int tileHeight_ = 0;
 	
-	public EvenTileSet() {
+	public TerrainTileSet() {
 		super();
 		
 		labelToBaseIdMap_ = new HashMap<String, Integer>();
@@ -39,7 +38,7 @@ public class EvenTileSet extends TiledMapTileSet {
 	 * will be the key used to identify the texture later.
 	 * @param atlas The atlas containing all the tiles
 	 */
-	public EvenTileSet(TextureAtlas atlas) {
+	public TerrainTileSet(TextureAtlas atlas) {
 		this();
 		
 		this.addTextureAtlas(atlas);
