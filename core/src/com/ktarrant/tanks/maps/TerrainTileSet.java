@@ -16,7 +16,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import com.badlogic.gdx.utils.Array;
-import com.ktarrant.tanks.test.MapViewer;
+import com.ktarrant.tanks.MapViewer;
 
 /* TODO: Can we use a label that isn't a String to be more efficient? */
 

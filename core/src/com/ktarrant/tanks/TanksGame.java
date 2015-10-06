@@ -24,7 +24,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.ktarrant.tanks.maps.TerrainTileSet;
 import com.ktarrant.tanks.menu.HudScreen;
 import com.ktarrant.tanks.test.HudScreenTest;
-import com.ktarrant.tanks.test.MapViewer;
 import com.ktarrant.tanks.test.TerrainLayerTest;
 
 public class TanksGame extends Game {
@@ -48,7 +47,7 @@ public class TanksGame extends Game {
 		font_ = new BitmapFont();
 		batch_ = new SpriteBatch();
 		
-		Gdx.input.setInputProcessor(this.mapViewer);
+		Gdx.input.setInputProcessor(this.mapViewer.mapStage);
 		this.setScreen(this.mapViewer);
 	}
 
