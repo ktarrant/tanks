@@ -59,26 +59,6 @@ public abstract class MapViewer extends ScreenAdapter {
 		return newMap;
 	}
 
-	public void load() {
-		// Load an EvenTileSet from a TextureAtlas
-		assetManager.load("grass.pack", TextureAtlas.class);
-		assetManager.finishLoading();
-		
-		// Build a TerrainLayer from the randomly generated ValueMap
-		// and an EvenTileSet
-		TextureAtlas mapAtlas = assetManager.get("grass.pack", 
-				TextureAtlas.class);
-		TerrainTileSet tileset = new TerrainTileSet(mapAtlas);
-		TerrainLayer layer = new TerrainLayer(
-				32, 32, 128, 128, tileset);
-		layer.setValueMap(generateRandomMap());
-		layer.update();
-		
-		// Create a tiled map and add the layer to it
-		this.map = new TiledMap();
-		this.map.getLayers().add(layer);
-	}
-
 	public void doAction(int actionId) {
 		if (actionId == 1) {
 			TerrainLayer layer = (TerrainLayer) this.map.getLayers().get(0);
@@ -106,12 +86,33 @@ public abstract class MapViewer extends ScreenAdapter {
 		this.assetManager = assetManager;
 		this.font = new BitmapFont();
 		this.batch = new SpriteBatch();
-		this.mapStage = new MapStage(new ExtendViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 		
 		// Load the menu Textures
 		this.loadMenu();
 		
-		load();
+		// Load a TerrainTileSet from a TextureAtlas
+		assetManager.load("grass.pack", TextureAtlas.class);
+		assetManager.finishLoading();
+		
+		// Build a TerrainLayer from the randomly generated ValueMap
+		// and an EvenTileSet
+		TextureAtlas mapAtlas = assetManager.get("grass.pack", 
+				TextureAtlas.class);
+		TerrainTileSet tileset = new TerrainTileSet(mapAtlas);
+		TerrainLayer layer = new TerrainLayer(
+				32, 32, 128, 128, tileset);
+		layer.setValueMap(generateRandomMap());
+		layer.update();
+		
+		// Create a tiled map and add the layer to it
+		this.map = new TiledMap();
+		this.map.getLayers().add(layer);
+		
+		this.mapStage = new MapStage(
+				new ExtendViewport(
+						Gdx.graphics.getWidth(), 
+						Gdx.graphics.getHeight()),
+				map);
 		
 		// Create a renderer for the map
 		this.renderer = new OrthogonalTiledMapRenderer(this.map);
@@ -135,7 +136,6 @@ public abstract class MapViewer extends ScreenAdapter {
 	
 	@Override
 	public void resize(int width, int height) {
-		OrthographicCamera camera = (OrthographicCamera) mapStage.getCamera();
 		mapStage.getViewport().update(width, height);
 	}
 	

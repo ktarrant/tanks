@@ -3,6 +3,7 @@ package com.ktarrant.tanks.maps;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class TerrainLayer extends TiledMapTileLayer {
 	private ValueMap<Integer> valueMap;
@@ -189,5 +190,4 @@ public class TerrainLayer extends TiledMapTileLayer {
 		// succeed in matching a modifier.
 		return -1;
 	}
-
 }
