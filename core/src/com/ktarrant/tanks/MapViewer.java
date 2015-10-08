@@ -9,6 +9,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,15 +22,19 @@ import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.ktarrant.tanks.MapStage.TiledMapActorEventListener;
+import com.ktarrant.tanks.MapStage.TiledMapActorEventType;
 import com.ktarrant.tanks.maps.DiamondSquareProcessor;
 import com.ktarrant.tanks.maps.TerrainLayer;
 import com.ktarrant.tanks.maps.TerrainTileSet;
 import com.ktarrant.tanks.maps.ValueMap;
+import com.ktarrant.tanks.menu.HudStage;
 
-public abstract class MapViewer extends ScreenAdapter {
+public class MapViewer extends ScreenAdapter {
 
 	protected AssetManager assetManager;
 	protected TiledMap map;
@@ -37,6 +42,7 @@ public abstract class MapViewer extends ScreenAdapter {
 	protected BitmapFont font;
 	protected SpriteBatch batch;
 	public MapStage mapStage;
+	public HudStage hudStage;
 	
 	private ValueMap<Integer> generateRandomMap() {
 		// Build a randomly generated ValueMap
@@ -58,46 +64,23 @@ public abstract class MapViewer extends ScreenAdapter {
 		}
 		return newMap;
 	}
-
-	public void doAction(int actionId) {
-		if (actionId == 1) {
-			TerrainLayer layer = (TerrainLayer) this.map.getLayers().get(0);
-			layer.setValueMap(generateRandomMap());
-			layer.update();
-		}
+	
+	private void loadHudStage() {
+        this.assetManager.load("uiskin.json", Skin.class);
+        this.assetManager.finishLoading();
+		Skin uiskin = this.assetManager.get("uiskin.json", Skin.class);
+		this.hudStage = new HudStage(uiskin);
 	}
 	
-	private void loadMenu() {
-		// Create a NinePatch from the provided texture
-		this.assetManager.load("sample.png", Texture.class);
-		this.assetManager.finishLoading();
-		Texture patchTex = this.assetManager.get("sample.png", Texture.class);
-		int patchWidth = patchTex.getWidth() / 3;
-		int patchHeight = patchTex.getHeight() / 3;
-		NinePatch patch = new NinePatch(patchTex, 
-				patchWidth, 2 * patchWidth,
-				patchHeight, 2 * patchHeight);
-		
-		
-	}
-	
-	public MapViewer(AssetManager assetManager){
-		// Initialize objects
-		this.assetManager = assetManager;
-		this.font = new BitmapFont();
-		this.batch = new SpriteBatch();
-		
-		// Load the menu Textures
-		this.loadMenu();
-		
+	private void loadMapStage() {
 		// Load a TerrainTileSet from a TextureAtlas
 		assetManager.load("grass.pack", TextureAtlas.class);
 		assetManager.finishLoading();
+		TextureAtlas mapAtlas = assetManager.get("grass.pack", 
+				TextureAtlas.class);
 		
 		// Build a TerrainLayer from the randomly generated ValueMap
 		// and an EvenTileSet
-		TextureAtlas mapAtlas = assetManager.get("grass.pack", 
-				TextureAtlas.class);
 		TerrainTileSet tileset = new TerrainTileSet(mapAtlas);
 		TerrainLayer layer = new TerrainLayer(
 				32, 32, 128, 128, tileset);
@@ -113,9 +96,39 @@ public abstract class MapViewer extends ScreenAdapter {
 						Gdx.graphics.getWidth(), 
 						Gdx.graphics.getHeight()),
 				map);
+	}
+	
+	public MapViewer(AssetManager assetManager){
+		// Initialize objects
+		this.assetManager = assetManager;
+		this.font = new BitmapFont();
+		this.batch = new SpriteBatch();
+		
+		// Load the menu Textures
+		this.loadHudStage();
+		
+		// Load the map view
+		this.loadMapStage();
+		
+		// Link the map to the hud
+		this.mapStage.registerTiledMapActorEventListener(
+				new TiledMapActorEventListener() {
+
+					@Override
+					public void handleActorEvent(
+							TiledMapActorEventType eventType,
+							TiledMapActor actor) {
+						hudStage.updateParam("Selection", 
+							String.format("TiledMapTile: (%d, %d)", 
+								actor.getTileX(), actor.getTileY()));
+					}
+			
+		});
 		
 		// Create a renderer for the map
+		OrthographicCamera camera = (OrthographicCamera) mapStage.getCamera();
 		this.renderer = new OrthogonalTiledMapRenderer(this.map);
+		this.renderer.setView(camera);
 	}
 	
 	@Override
@@ -124,19 +137,28 @@ public abstract class MapViewer extends ScreenAdapter {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Update the map camera
         OrthographicCamera camera = (OrthographicCamera) mapStage.getCamera();
         camera.update();
+     
+        // Update all the stages together
         mapStage.act();
-        renderer.setView(camera);
+        hudStage.updateParam("FPS", 
+        		String.valueOf(Gdx.graphics.getFramesPerSecond()));
+        hudStage.act();
+        
+        // Draw the map
+        this.renderer.setView(camera);
         renderer.render();
-		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
-		batch.end();
+        
+        // Draw the HUD
+        hudStage.draw();
 	}
 	
 	@Override
 	public void resize(int width, int height) {
 		mapStage.getViewport().update(width, height);
+		hudStage.getViewport().update(width, height);
 	}
 	
 	/**

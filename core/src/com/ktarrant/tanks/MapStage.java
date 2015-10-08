@@ -1,46 +1,51 @@
 package com.ktarrant.tanks;
 
+import java.util.ArrayList;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ktarrant.tanks.maps.TerrainLayer;
 
 public class MapStage extends Stage {
 	public static final float DEFAULT_ZOOM = 0.6f;
-	public static final float DEFAULT_CAMERA_TRANSLATE_STEP = 32.0f;
-	public static final float DEFAULT_CAMERA_ZOOM_STEP = 1.0f;
-	private float cameraTranslateStep;
-	private float cameraZoomStep;
-	private TiledMap tiledMap;
+	public static final float DEFAULT_CAMERA_TRANSLATE_RATE = 512.0f;
+	public static final float DEFAULT_CAMERA_ZOOM_RATE = 4.0f;
+	public static final Vector3 VECTOR_OUT = new Vector3(0, 0, 1);
+	private final TiledMap tiledMap;
+	private float cameraTranslateRate;
+	private float cameraZoomRate;
+	private ArrayList<TiledMapActorEventListener> evtListeners;
+
+	public enum TiledMapActorEventType {
+		TOUCHDOWN;
+	}
 	
-	public class TiledMapClickListener extends ClickListener {
-
-	    private TiledMapActor actor;
-
-	    public TiledMapClickListener(TiledMapActor actor) {
-	        this.actor = actor;
-	    }
-
-	    @Override
-	    public void clicked(InputEvent event, float x, float y) {
-	        System.out.println(String.format("%d,%d has been clicked.",
-	        		actor.getTileX(), actor.getTileY()));
-	    }
+	public interface TiledMapActorEventListener {
+		
+		public void handleActorEvent(TiledMapActorEventType eventType, TiledMapActor actor);
+		
 	}
 	
 	public MapStage(Viewport viewport, TiledMap tiledMap) {
 		super(viewport);
+		evtListeners = new ArrayList<TiledMapActorEventListener>();
 		
-		this.cameraTranslateStep = DEFAULT_CAMERA_TRANSLATE_STEP;
-		this.cameraZoomStep = DEFAULT_CAMERA_ZOOM_STEP;
+		this.cameraTranslateRate = DEFAULT_CAMERA_TRANSLATE_RATE;
+		this.cameraZoomRate = DEFAULT_CAMERA_ZOOM_RATE;
 		
 		this.tiledMap = tiledMap;
 
@@ -51,6 +56,66 @@ public class MapStage extends Stage {
         	}
         }
     }
+	
+	public void act(float delta) {
+		super.act(delta);
+		handleInput(delta);
+	}
+	
+	public void registerTiledMapActorEventListener(TiledMapActorEventListener listener) {
+		evtListeners.add(listener);
+	}
+	
+	public void unregisterTiledMapActorEventListener(TiledMapActorEventListener listener) {
+		evtListeners.remove(listener);
+	}
+	
+	private boolean handleInput(float delta) {
+    	OrthographicCamera camera = (OrthographicCamera) this.getViewport().getCamera();
+    	
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+            camera.translate(
+            	-this.cameraTranslateRate * delta * camera.zoom, 0);
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+            camera.translate(
+            	this.cameraTranslateRate * delta * camera.zoom, 0);
+        if(Gdx.input.isKeyPressed(Input.Keys.UP))
+            camera.translate(
+            	0, this.cameraTranslateRate * delta * camera.zoom);
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
+            camera.translate(
+            	0, -this.cameraTranslateRate * delta * camera.zoom, 0);
+        if(Gdx.input.isKeyPressed(Input.Keys.EQUALS))
+        	camera.zoom -= this.cameraZoomRate * delta;
+        if(Gdx.input.isKeyPressed(Input.Keys.MINUS))
+        	camera.zoom += this.cameraZoomRate * delta;
+//        if(Gdx.input.isKeyPressed(Input.Keys.NUM_1))
+//        	doAction(1);
+//        if(Gdx.input.isKeyPressed(Input.Keys.NUM_2))
+//        	doAction(2);
+        return true;
+	}
+	
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		Vector2 stageCoords = this.screenToStageCoordinates(
+				new Vector2(screenX, screenY));
+		TiledMapActor actor = (TiledMapActor) this.hit(
+				stageCoords.x, stageCoords.y, false);
+		if (actor != null) {
+			System.out.println(String.format("touchdown x=%d y=%d", 
+					actor.getTileX(), actor.getTileY()));
+			// Notify listeners
+			for (TiledMapActorEventListener listener : evtListeners) {
+				listener.handleActorEvent(TiledMapActorEventType.TOUCHDOWN, 
+					actor);
+			}
+		} else {
+			System.out.println(String.format("No actor found at x=%f y=%f",
+					stageCoords.x, stageCoords.y));
+		}
+		return true;
+	}
 
     private void createActorsForLayer(TiledMapTileLayer tiledLayer) {
         for (int x = 0; x < tiledLayer.getWidth(); x++) {
@@ -61,33 +126,7 @@ public class MapStage extends Stage {
                         tiledLayer.getTileHeight());
                 
                 addActor(actor);
-                EventListener eventListener = new TiledMapClickListener(actor);
-                actor.addListener(eventListener);
             }
         }
-    }
-	
-    @Override
-    public boolean keyUp(int keycode) {
-    	OrthographicCamera camera = (OrthographicCamera) this.getViewport().getCamera();
-    	
-        if(keycode == Input.Keys.LEFT)
-            camera.translate(-this.cameraTranslateStep * camera.zoom, 0);
-        if(keycode == Input.Keys.RIGHT)
-            camera.translate(cameraTranslateStep * camera.zoom, 0);
-        if(keycode == Input.Keys.UP)
-            camera.translate(0, cameraTranslateStep * camera.zoom);
-        if(keycode == Input.Keys.DOWN)
-            camera.translate(0, -cameraTranslateStep * camera.zoom);
-        if(keycode == Input.Keys.EQUALS)
-        	camera.zoom -= this.cameraZoomStep;
-        if(keycode == Input.Keys.MINUS)
-        	camera.zoom += this.cameraZoomStep;
-//        if(keycode == Input.Keys.NUM_1)
-//        	doAction(1);
-//        if(keycode == Input.Keys.NUM_2)
-//        	doAction(2);
-        
-        return false;
     }
 }
