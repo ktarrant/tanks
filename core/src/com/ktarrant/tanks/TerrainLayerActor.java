@@ -3,15 +3,18 @@ package com.ktarrant.tanks;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.ktarrant.tanks.maps.TerrainLayer;
+import com.ktarrant.tanks.maps.TerrainTileSet;
 
-public class TiledMapActor extends Actor {
-    public TiledMap tiledMap;
+public class TerrainLayerActor extends Actor {
+    public final TiledMap tiledMap;
 
-    public TiledMapTileLayer tiledLayer;
+    public final TerrainLayer tiledLayer;
 
-	public TiledMapTileLayer.Cell cell;
+	public final TerrainLayer.Cell cell;
 
-	public TiledMapActor(TiledMap tiledMap, TiledMapTileLayer tiledLayer, TiledMapTileLayer.Cell cell) {
+	public TerrainLayerActor(TiledMap tiledMap, TerrainLayer tiledLayer, TerrainLayer.Cell cell) {
         this.tiledMap = tiledMap;
         this.tiledLayer = tiledLayer;
         this.cell = cell;

@@ -17,7 +17,6 @@ public class TanksGame extends Game {
 		// Load the MapViewer, give it the AssetManager for loading.
 		this.mapViewer = new MapViewer(assetManager);
 		
-		Gdx.input.setInputProcessor(this.mapViewer.mapStage);
 		this.setScreen(this.mapViewer);
 	}
 

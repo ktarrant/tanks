@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
@@ -41,6 +42,7 @@ public class MapViewer extends ScreenAdapter {
 	protected TiledMapRenderer renderer;
 	protected BitmapFont font;
 	protected SpriteBatch batch;
+	protected InputMultiplexer multiplexer;
 	public MapStage mapStage;
 	public HudStage hudStage;
 	
@@ -70,6 +72,7 @@ public class MapViewer extends ScreenAdapter {
         this.assetManager.finishLoading();
 		Skin uiskin = this.assetManager.get("uiskin.json", Skin.class);
 		this.hudStage = new HudStage(uiskin);
+        this.hudStage.setDebugAll(true);
 	}
 	
 	private void loadMapStage() {
@@ -78,14 +81,21 @@ public class MapViewer extends ScreenAdapter {
 		assetManager.finishLoading();
 		TextureAtlas mapAtlas = assetManager.get("grass.pack", 
 				TextureAtlas.class);
+		Skin skin = new Skin(mapAtlas);
 		
 		// Build a TerrainLayer from the randomly generated ValueMap
 		// and an EvenTileSet
-		TerrainTileSet tileset = new TerrainTileSet(mapAtlas);
+		TerrainTileSet tileset = new TerrainTileSet(skin);
 		TerrainLayer layer = new TerrainLayer(
 				32, 32, 128, 128, tileset);
 		layer.setValueMap(generateRandomMap());
 		layer.update();
+		
+		// Add the primary terrain values to the clickable HUD window
+		Integer baseId = tileset.labelToBaseIdMap.get("Grass");
+		this.hudStage.addTileButton(tileset, (baseId << 16) + 13);
+		baseId = tileset.labelToBaseIdMap.get("Dirt");
+		this.hudStage.addTileButton(tileset, (baseId << 16) + 4);
 		
 		// Create a tiled map and add the layer to it
 		this.map = new TiledMap();
@@ -117,13 +127,15 @@ public class MapViewer extends ScreenAdapter {
 					@Override
 					public void handleActorEvent(
 							TiledMapActorEventType eventType,
-							TiledMapActor actor) {
-						hudStage.updateParam("Selection", 
-							String.format("TiledMapTile: (%d, %d)", 
-								actor.getTileX(), actor.getTileY()));
+							TerrainLayerActor actor) {
+						hudStage.updateSelection(actor);
 					}
 			
 		});
+		
+		//Create the input multiplexer
+		multiplexer = new InputMultiplexer(hudStage, mapStage);
+		Gdx.input.setInputProcessor(multiplexer);
 		
 		// Create a renderer for the map
 		OrthographicCamera camera = (OrthographicCamera) mapStage.getCamera();
@@ -142,10 +154,10 @@ public class MapViewer extends ScreenAdapter {
         camera.update();
      
         // Update all the stages together
-        mapStage.act();
+        mapStage.act(delta);
         hudStage.updateParam("FPS", 
         		String.valueOf(Gdx.graphics.getFramesPerSecond()));
-        hudStage.act();
+        hudStage.act(delta);
         
         // Draw the map
         this.renderer.setView(camera);

@@ -36,7 +36,7 @@ public class MapStage extends Stage {
 	
 	public interface TiledMapActorEventListener {
 		
-		public void handleActorEvent(TiledMapActorEventType eventType, TiledMapActor actor);
+		public void handleActorEvent(TiledMapActorEventType eventType, TerrainLayerActor actor);
 		
 	}
 	
@@ -52,7 +52,7 @@ public class MapStage extends Stage {
         for (MapLayer layer : tiledMap.getLayers()) {
         	if (layer instanceof TerrainLayer) {
 	            TerrainLayer tiledLayer = (TerrainLayer)layer;
-	            createActorsForLayer(tiledLayer);
+	            createTerrainLayerActorsForLayer(tiledLayer);
         	}
         }
     }
@@ -100,7 +100,7 @@ public class MapStage extends Stage {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		Vector2 stageCoords = this.screenToStageCoordinates(
 				new Vector2(screenX, screenY));
-		TiledMapActor actor = (TiledMapActor) this.hit(
+		TerrainLayerActor actor = (TerrainLayerActor) this.hit(
 				stageCoords.x, stageCoords.y, false);
 		if (actor != null) {
 			System.out.println(String.format("touchdown x=%d y=%d", 
@@ -117,11 +117,11 @@ public class MapStage extends Stage {
 		return true;
 	}
 
-    private void createActorsForLayer(TiledMapTileLayer tiledLayer) {
+    private void createTerrainLayerActorsForLayer(TerrainLayer tiledLayer) {
         for (int x = 0; x < tiledLayer.getWidth(); x++) {
             for (int y = 0; y < tiledLayer.getHeight(); y++) {
-            	TerrainLayer.Cell cell = new TerrainLayer.Cell();
-            	TiledMapActor actor = new TiledMapActor(tiledMap, tiledLayer, cell);
+            	TerrainLayer.Cell cell = tiledLayer.getCell(x, y);
+            	TerrainLayerActor actor = new TerrainLayerActor(tiledMap, tiledLayer, cell);
                 actor.setBounds(x * tiledLayer.getTileWidth(), y * tiledLayer.getTileHeight(), tiledLayer.getTileWidth(),
                         tiledLayer.getTileHeight());
                 

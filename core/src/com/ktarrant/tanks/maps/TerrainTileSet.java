@@ -3,6 +3,7 @@ package com.ktarrant.tanks.maps;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -15,54 +16,64 @@ import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import com.ktarrant.tanks.MapViewer;
 
 /* TODO: Can we use a label that isn't a String to be more efficient? */
 
 public class TerrainTileSet extends TiledMapTileSet {
+
+	public final HashMap<String, Integer> labelToBaseIdMap;
+	public final HashMap<Integer, String> tileIdToLabelMap;
+	public final Skin skin;
 	private int curId_ = 0;
-	private HashMap<String, Integer> labelToBaseIdMap_;
-	
-	public int tileWidth_ = 0;
-	public int tileHeight_ = 0;
-	
-	public TerrainTileSet() {
-		super();
-		
-		labelToBaseIdMap_ = new HashMap<String, Integer>();
-	}
 	
 	/**
 	 * Create an EvenTileSet from a TextureAtlas, where the name of each texture
 	 * will be the key used to identify the texture later.
 	 * @param atlas The atlas containing all the tiles
 	 */
-	public TerrainTileSet(TextureAtlas atlas) {
-		this();
+	public TerrainTileSet(Skin skin) {
+		super();
 		
-		this.addTextureAtlas(atlas);
-	}
-	
-	public void addTextureAtlas(TextureAtlas atlas) {
-		// Add each region as an EvenTile with the label as the region name.
-		for (AtlasRegion region : atlas.getRegions()) {
-			this.addTextureRegion(region.name, region);
+		labelToBaseIdMap = new HashMap<String, Integer>();
+		tileIdToLabelMap = new HashMap<Integer, String>();
+		this.skin = skin;
+		
+		// Add each region as an TerrainTile with the label as the region name.
+		for (AtlasRegion region : skin.getAtlas().getRegions()) {
+			//Split by underscore:
+			// First element is the label for the base ID.
+			// Second element is the modifier ID for the tile
+			String[] nameFields = region.name.split("_");
+			assert nameFields.length == 2;
+			
+			//Check if the label already has a baseId
+			Integer baseId = labelToBaseIdMap.get(nameFields[0]);
+			if (baseId == null) {
+				//This is a new label, give it a fresh baseId
+				baseId = curId_++;
+				labelToBaseIdMap.put(nameFields[0], baseId);
+			}
+			//Create a tileId for the new tile using the baseId and modId
+			int modId = Integer.valueOf(nameFields[1]);
+			int tileId = (baseId << 16) | modId;
+			tileIdToLabelMap.put(tileId, region.name);
+			
+			//Create a static tile for the region
+			StaticTiledMapTile tile = new StaticTiledMapTile(region);
+			tile.setId(tileId);
+			this.putTile(tileId, tile);
 		}
 	}
 	
-	public void addTextureRegion(String name, TextureRegion region) {
-		String[] nameFields = name.split("_");
-		assert nameFields.length == 2;
-		
-		Integer baseId = labelToBaseIdMap_.get(nameFields[0]);
-		if (baseId == null) {
-			baseId = curId_++;
-			labelToBaseIdMap_.put(nameFields[0], baseId);
+	public <T> T getTileFromSkin(int tileId, Class<T> clazz) {
+		String label = tileIdToLabelMap.get(tileId);
+		if (label == null) {
+			return null;
+		} else {
+			return skin.get(label, clazz);
 		}
-		int modId = Integer.valueOf(nameFields[1]);
-		int tileId = (baseId << 16) | modId;
-		StaticTiledMapTile tile = new StaticTiledMapTile(region);
-		this.putTile(tileId, tile);
 	}
 }

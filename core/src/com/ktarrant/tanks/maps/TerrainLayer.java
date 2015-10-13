@@ -6,6 +6,32 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class TerrainLayer extends TiledMapTileLayer {
+	//Specifies what the modifiers mean
+	public enum NeighborTileIndex {
+	
+		 TOP_LEFT			( 0, -1, -1),
+		 TOP_MIDDLE			( 1,  0, -1),
+		 TOP_RIGHT			( 2,  1, -1),
+		 MIDDLE_LEFT		( 3, -1,  0),
+		 MIDDLE_MIDDLE		( 4,  0,  0),
+		 MIDDLE_RIGHT		( 5,  1,  0),
+		 BOTTOM_LEFT		( 6, -1,  1),
+		 BOTTOM_MIDDLE		( 7,  0,  1),
+		 BOTTOM_RIGHT		( 8,  1,  1);
+	
+		 public final int index;
+		 public final int xOffset;
+		 public final int yOffset;
+	
+		 private NeighborTileIndex(int index, int xOffset, int yOffset) {
+		 	this.index = index;
+		 	this.xOffset = xOffset;
+		 	this.yOffset = yOffset;
+		 }
+		 
+		 
+	 }
+
 	private ValueMap<Integer> valueMap;
 	private TiledMapTileSet tileset;
 	
@@ -52,7 +78,8 @@ public class TerrainLayer extends TiledMapTileLayer {
 				// reserved for the modId
 				assert (baseId & 0xFFFF0000) == 0;
 				
-				for (ThirteenPatchNeighbor neighbor : ThirteenPatchNeighbor.values()) {
+				for (TerrainLayer.NeighborTileIndex neighbor : 
+						TerrainLayer.NeighborTileIndex.values()) {
 					// Get the baseId of each neighbor. We can use this to
 					// determine what our modifier will be.
 					neighbors[neighbor.index] = valueMap.get(
@@ -89,31 +116,6 @@ public class TerrainLayer extends TiledMapTileLayer {
 	public void update() {
 		this.update(0, 0, this.getWidth(), this.getHeight());
 	}
-	
-	public enum ThirteenPatchNeighbor {
-
-		 TOP_LEFT			( 0, -1, -1),
-		 TOP_MIDDLE			( 1,  0, -1),
-		 TOP_RIGHT			( 2,  1, -1),
-		 MIDDLE_LEFT		( 3, -1,  0),
-		 MIDDLE_MIDDLE		( 4,  0,  0),
-		 MIDDLE_RIGHT		( 5,  1,  0),
-		 BOTTOM_LEFT		( 6, -1,  1),
-		 BOTTOM_MIDDLE		( 7,  0,  1),
-		 BOTTOM_RIGHT		( 8,  1,  1);
-
-		 public final int index;
-		 public final int xOffset;
-		 public final int yOffset;
-
-		 private ThirteenPatchNeighbor(int index, int xOffset, int yOffset) {
-		 	this.index = index;
-		 	this.xOffset = xOffset;
-		 	this.yOffset = yOffset;
-		 }
-		 
-		 
-	 }
 	
 	/**
 	 * @return the valueMap

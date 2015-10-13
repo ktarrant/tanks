@@ -1,3 +1,8 @@
+Class Storage:
+
+Use XML or other configurable data files to create hierarchy of units
+Maybe JSON?
+Whatever makes the game most Moddable
 
 Gameplay:
 
