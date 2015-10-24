@@ -27,6 +27,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ktarrant.tanks.MapStage.TiledMapActorEventListener;
 import com.ktarrant.tanks.MapStage.TiledMapActorEventType;
 import com.ktarrant.tanks.maps.DiamondSquareProcessor;
@@ -36,6 +37,8 @@ import com.ktarrant.tanks.maps.ValueMap;
 import com.ktarrant.tanks.menu.HudStage;
 
 public class MapViewer extends ScreenAdapter {
+	public static final int MAP_WIDTH = 32;
+	public static final int MAP_HEIGHT = 32;
 
 	protected AssetManager assetManager;
 	protected TiledMap map;
@@ -48,7 +51,7 @@ public class MapViewer extends ScreenAdapter {
 	
 	private ValueMap<Integer> generateRandomMap() {
 		// Build a randomly generated ValueMap
-		ValueMap<Float> valueMap = new ValueMap<Float>(32, 32);
+		ValueMap<Float> valueMap = new ValueMap<Float>(MAP_WIDTH, MAP_HEIGHT);
 		valueMap.fillWith(0.0f);
 		DiamondSquareProcessor.seedMapRandom(valueMap, 
 				0.0f, 1.0f, 0.0f, 1.0f);
@@ -87,24 +90,27 @@ public class MapViewer extends ScreenAdapter {
 		// and an EvenTileSet
 		TerrainTileSet tileset = new TerrainTileSet(skin);
 		TerrainLayer layer = new TerrainLayer(
-				32, 32, 128, 128, tileset);
+				MAP_WIDTH, MAP_HEIGHT, 128, 128, tileset);
 		layer.setValueMap(generateRandomMap());
 		layer.update();
 		
 		// Add the primary terrain values to the clickable HUD window
 		Integer baseId = tileset.labelToBaseIdMap.get("Grass");
-		this.hudStage.addTileButton(tileset, (baseId << 16) + 13);
+		this.hudStage.addTileButton(tileset, (baseId << 16) + 
+				TerrainTileSet.TerrainTileModifier.INNER_MIDDLE.index);
 		baseId = tileset.labelToBaseIdMap.get("Dirt");
-		this.hudStage.addTileButton(tileset, (baseId << 16) + 4);
+		this.hudStage.addTileButton(tileset, (baseId << 16) + 
+				TerrainTileSet.TerrainTileModifier.MIDDLE_MIDDLE.index);
 		
 		// Create a tiled map and add the layer to it
 		this.map = new TiledMap();
 		this.map.getLayers().add(layer);
 		
+		Viewport viewport = new ExtendViewport(
+				Gdx.graphics.getWidth(), 
+				Gdx.graphics.getHeight());
 		this.mapStage = new MapStage(
-				new ExtendViewport(
-						Gdx.graphics.getWidth(), 
-						Gdx.graphics.getHeight()),
+				viewport,
 				map);
 	}
 	

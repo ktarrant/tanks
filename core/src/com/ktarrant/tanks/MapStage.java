@@ -21,9 +21,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ktarrant.tanks.maps.TerrainLayer;
 
 public class MapStage extends Stage {
-	public static final float DEFAULT_ZOOM = 0.6f;
+	public static final float DEFAULT_ZOOM = 5.0f;
 	public static final float DEFAULT_CAMERA_TRANSLATE_RATE = 512.0f;
 	public static final float DEFAULT_CAMERA_ZOOM_RATE = 4.0f;
+	
 	public static final Vector3 VECTOR_OUT = new Vector3(0, 0, 1);
 	private final TiledMap tiledMap;
 	private float cameraTranslateRate;
@@ -54,6 +55,12 @@ public class MapStage extends Stage {
 	            TerrainLayer tiledLayer = (TerrainLayer)layer;
 	            createTerrainLayerActorsForLayer(tiledLayer);
         	}
+        }
+        
+        if (viewport.getCamera() instanceof OrthographicCamera) {
+        	OrthographicCamera orthoCam = 
+        			(OrthographicCamera) viewport.getCamera();
+        	orthoCam.zoom = DEFAULT_ZOOM;
         }
     }
 	

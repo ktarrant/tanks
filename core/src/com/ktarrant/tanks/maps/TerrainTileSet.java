@@ -76,4 +76,37 @@ public class TerrainTileSet extends TiledMapTileSet {
 			return skin.get(label, clazz);
 		}
 	}
+	
+	public enum TerrainTileModifier {
+		
+		 TOP_LEFT			( 0),
+		 TOP_MIDDLE			( 1),
+		 TOP_RIGHT			( 2),
+		 MIDDLE_LEFT		( 3),
+		 MIDDLE_MIDDLE		( 4),
+		 MIDDLE_RIGHT		( 5),
+		 BOTTOM_LEFT		( 6),
+		 BOTTOM_MIDDLE		( 7),
+		 BOTTOM_RIGHT		( 8),
+		 INNER_TOP_LEFT		( 9),
+		 INNER_TOP_RIGHT	(10),
+		 INNER_BOTTOM_LEFT	(11),
+		 INNER_BOTTOM_RIGHT	(12),
+		 INNER_MIDDLE		(13);
+	
+		 public final int index;
+	
+		 private TerrainTileModifier(int index) {
+		 	this.index = index;
+		 }
+		 
+		 public static TerrainTileModifier getModifier(int index) {
+			 for (TerrainTileModifier mod : values()) {
+				 if (index == mod.index) {
+					 return mod;
+				 }
+			 }
+			 return null;
+		 }
+	 }
 }
